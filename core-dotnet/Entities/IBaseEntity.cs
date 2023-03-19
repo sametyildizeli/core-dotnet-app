@@ -4,8 +4,10 @@ namespace core_dotnet.Entities
 {
     public interface IBaseEntity
     {
-        Status Status { get; set; }
+        RecordStatus RecordStatus { get; set; }
+        public string CreateUserId { get; set; }
         DateTimeOffset CreateDate { get; set; }
+        public string UpdateUserId { get; set; }
         DateTimeOffset UpdateDate { get; set; }
     }
 }
