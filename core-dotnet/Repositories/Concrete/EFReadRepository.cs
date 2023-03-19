@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace core_dotnet.Repositories.Concrete;
 
-public class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where T : BaseEntity<TId>, new()
+public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where T : BaseEntity<TId>, new()
 {
     private readonly DbSet<T> _entity;
 
