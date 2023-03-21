@@ -49,7 +49,7 @@ public class TokenHelper
     private static IEnumerable<Claim> SetClaims(IBaseUserEntity user, IEnumerable<string> roles)
     {
         var claims = new List<Claim>();
-        claims.AddNameIdentifier(user.UserId.ToString());
+        claims.AddNameIdentifier(user.UserId);
         claims.AddName($"{user.Name} {user.Surname}");
         claims.AddEmail(user.Email);
         claims.AddRoles(roles);
