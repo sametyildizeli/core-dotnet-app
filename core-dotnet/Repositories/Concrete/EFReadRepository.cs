@@ -1,8 +1,10 @@
 ﻿using core_dotnet.Entities;
 using core_dotnet.Repositories.Abstract;
+using core_dotnet.Utilities.Paging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
+using Mapster;
 
 namespace core_dotnet.Repositories.Concrete;
 
@@ -45,6 +47,60 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
         if (!tracking) query = query.AsNoTracking();
 
         return query.FirstOrDefaultAsync(p => Equals(p.Id, id));
+    }
+    public PagedResult<TDto> GetPagedResult<TDto>(int pageNumber = 1, int pageSize = 10, Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    {
+        IQueryable<T> query = _entity.AsQueryable();
+
+        if (filter != null) query = query.Where(filter);
+
+        if (include != null) query = include(query);
+
+        int skip = (pageNumber - 1) * pageSize;
+        int take = pageSize;
+
+        query = query.Skip(skip).Take(take);
+        query = query.AsNoTracking();
+
+        var pagedEntities = query.ProjectToType<TDto>().ToList();
+
+        int totalCount = Count(p => p.RecordStatus == Enums.RecordStatus.Active, false);
+
+        int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+        return new PagedResult<TDto>
+        {
+            CurrentPage = pageNumber,
+            TotalPages = totalPages,
+            Results = pagedEntities
+        };
+    }
+    public async Task<PagedResult<TDto>> GetPagedResultAsync<TDto>(int pageNumber = 1, int pageSize = 10, Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    {
+        IQueryable<T> query = _entity.AsQueryable();
+
+        if (filter != null) query = query.Where(filter);
+
+        if (include != null) query = include(query);
+
+        int skip = (pageNumber - 1) * pageSize;
+        int take = pageSize;
+
+        query = query.Skip(skip).Take(take);
+        query = query.AsNoTracking();
+
+        var pagedEntities = await query.ProjectToType<TDto>().ToListAsync();
+
+        int totalCount = await CountAsync(p => p.RecordStatus == Enums.RecordStatus.Active, false);
+
+        int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+        return new PagedResult<TDto>
+        {
+            CurrentPage = pageNumber,
+            TotalPages = totalPages,
+            Results = pagedEntities
+        };
     }
 
     public int Count(Expression<Func<T, bool>> filter, bool tracking = true)

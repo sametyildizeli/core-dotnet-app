@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using core_dotnet.Security.Extensions;
+using System.Security.Cryptography;
 
 namespace core_dotnet.Security.Token;
 
@@ -13,7 +14,6 @@ public class TokenHelper
 {
     private readonly TokenOptions _tokenOptions;
     private DateTime _accessTokenExpiration;
-
     public TokenHelper(IOptions<TokenOptions> tokenOptions)
     {
         _tokenOptions = tokenOptions.Value;
@@ -27,10 +27,14 @@ public class TokenHelper
         var jwtSecurityToken = CreateJwtSecurityToken(_tokenOptions, user, signingCredentials, userRoles);
         var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
         var token = jwtSecurityTokenHandler.WriteToken(jwtSecurityToken);
+
+        var refreshToken = GenerateRefreshToken();
+
         return new AccessToken
         {
             Token = token,
-            Expiration = _accessTokenExpiration
+            Expiration = _accessTokenExpiration,
+            RefreshToken = refreshToken
         };
     }
 
@@ -50,5 +54,18 @@ public class TokenHelper
         claims.AddEmail(user.Email);
         claims.AddRoles(roles);
         return claims;
+    }
+
+    private RefreshToken GenerateRefreshToken()
+    {
+        var currentUTC = DateTime.UtcNow;
+        var refreshToken = new RefreshToken
+        {
+            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+            TokenCreated = currentUTC,
+            TokenExpiration = currentUTC.AddDays(_tokenOptions.RefreshTokenExpiration)
+        };
+
+        return refreshToken;
     }
 }
