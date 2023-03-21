@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace core_dotnet.ExceptionHandler;
 
@@ -23,7 +24,7 @@ public sealed class ExceptionMiddleware
 
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        context.Response.ContentType = "application/json";
+        context.Response.ContentType = Application.Json;
 
         var response = ErrorResponseFactory.CreateErrorReponse(exception);
 
