@@ -1,10 +1,10 @@
 ﻿using core_dotnet.Entities;
 using core_dotnet.Repositories.Abstract;
 using core_dotnet.Utilities.Paging;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
-using Mapster;
 
 namespace core_dotnet.Repositories.Concrete;
 
