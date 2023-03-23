@@ -1,11 +1,11 @@
 ﻿using core_dotnet.Entities;
 using core_dotnet.Security.Encryption;
+using core_dotnet.Security.Extensions;
 using core_dotnet.Security.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using core_dotnet.Security.Extensions;
 using System.Security.Cryptography;
 
 namespace core_dotnet.Security.Token;
