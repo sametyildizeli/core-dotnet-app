@@ -8,17 +8,15 @@ using System.Linq.Expressions;
 
 namespace core_dotnet.Repositories.Concrete;
 
-public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where T : BaseEntity<TId>, new()
+public abstract class EFReadRepository<T, TId> : IEfReadRepository<T, TId> where T : BaseEntity<TId>, new()
 {
-    private readonly DbSet<T> _entity;
+    public EFReadRepository(DbContext dbContext) { Entity = dbContext.Set<T>(); }
 
-    public EFReadRepository(DbContext dbContext) { _entity = dbContext.Set<T>(); }
-
-    public DbSet<T> Entity => _entity;
+    public DbSet<T> Entity { get; }
 
     public IQueryable<T> Get(Expression<Func<T, bool>> filter, bool tracking = true, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
-        IQueryable<T> query = _entity.Where(filter).AsQueryable();
+        var query = Entity.Where(filter).AsQueryable();
 
         if (!tracking) query = query.AsNoTracking();
 
@@ -29,7 +27,7 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
 
     public T? GetById(TId? id, bool tracking = true, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
-        IQueryable<T> query = _entity.AsQueryable();
+        var query = Entity.AsQueryable();
 
         if (include != null) query = include(query);
 
@@ -40,7 +38,7 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
 
     public Task<T?> GetByIdAsync(TId id, bool tracking = true, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
-        IQueryable<T> query = _entity.AsQueryable();
+        var query = Entity.AsQueryable();
 
         if (include != null) query = include(query);
 
@@ -48,25 +46,24 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
 
         return query.FirstOrDefaultAsync(p => Equals(p.Id, id));
     }
-    public PagedResult<TDto> GetPagedResult<TDto>(int pageNumber = 1, int pageSize = 10, IEnumerable<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    public PagedResult<TDto> GetPagedResult<TDto>(int pageNumber = 1, int pageSize = 10, ICollection<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
-        IQueryable<T> query = _entity.AsQueryable();
+        var query = Entity.AsQueryable();
 
-        if (filters != null && filters.Any()) foreach (var filter in filters) query = query.Where(filter);
+        if (filters != null && filters.Any()) query = filters.Aggregate(query, (current, filter) => current.Where(filter));
 
         if (include != null) query = include(query);
 
-        int skip = (pageNumber - 1) * pageSize;
-        int take = pageSize;
+        var skip = (pageNumber - 1) * pageSize;
 
-        query = query.Skip(skip).Take(take);
+        query = query.Skip(skip).Take(pageSize);
         query = query.AsNoTracking();
 
         var pagedEntities = query.ProjectToType<TDto>().ToList();
 
-        int totalCount = Count(p => p.RecordStatus == Enums.RecordStatus.Active, false);
+        var totalCount = Count(p => p.RecordStatus == Enums.RecordStatus.Active, false);
 
-        int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
         return new PagedResult<TDto>
         {
@@ -75,25 +72,24 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
             Results = pagedEntities
         };
     }
-    public async Task<PagedResult<TDto>> GetPagedResultAsync<TDto>(int pageNumber = 1, int pageSize = 10, IEnumerable<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    public async Task<PagedResult<TDto>> GetPagedResultAsync<TDto>(int pageNumber = 1, int pageSize = 10, ICollection<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
-        IQueryable<T> query = _entity.AsQueryable();
+        var query = Entity.AsQueryable();
 
-        if (filters != null && filters.Any()) foreach (var filter in filters) query = query.Where(filter);
+        if (filters != null && filters.Any()) query = filters.Aggregate(query, (current, filter) => current.Where(filter));
 
         if (include != null) query = include(query);
 
-        int skip = (pageNumber - 1) * pageSize;
-        int take = pageSize;
+        var skip = (pageNumber - 1) * pageSize;
 
-        query = query.Skip(skip).Take(take);
+        query = query.Skip(skip).Take(pageSize);
         query = query.AsNoTracking();
 
         var pagedEntities = await query.ProjectToType<TDto>().ToListAsync();
 
-        int totalCount = await CountAsync(p => p.RecordStatus == Enums.RecordStatus.Active, false);
+        var totalCount = await CountAsync(p => p.RecordStatus == Enums.RecordStatus.Active, false);
 
-        int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
         return new PagedResult<TDto>
         {
@@ -103,11 +99,11 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
         };
     }
 
-    public IEnumerable<TDto> GetChaniedFilterResult<TDto>(IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    public IEnumerable<TDto> GetChainedFilterResult<TDto>(IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
-        IQueryable<T> query = _entity.AsQueryable();
+        var query = Entity.AsQueryable();
 
-        foreach (var filter in filters) query = query.Where(filter);
+        query = filters.Aggregate(query, (current, filter) => current.Where(filter));
 
         if (include != null) query = include(query);
 
@@ -118,11 +114,11 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
         return result;
     }
 
-    public async Task<IEnumerable<TDto>> GetChaniedFilterResultAsync<TDto>(IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    public async Task<IEnumerable<TDto>> GetChainedFilterResultAsync<TDto>(IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
-        IQueryable<T> query = _entity.AsQueryable();
+        var query = Entity.AsQueryable();
 
-        foreach (var filter in filters) query = query.Where(filter);
+        query = filters.Aggregate(query, (current, filter) => current.Where(filter));
 
         if (include != null) query = include(query);
 
@@ -136,7 +132,7 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
 
     public int Count(Expression<Func<T, bool>> filter, bool tracking = true)
     {
-        IQueryable<T> query = _entity.Where(filter).AsQueryable();
+        var query = Entity.Where(filter).AsQueryable();
         if (!tracking) query = query.AsNoTracking();
         return query.Count();
 
@@ -144,20 +140,20 @@ public abstract class EFReadRepository<T, TId> : IEFReadRepository<T, TId> where
 
     public Task<int> CountAsync(Expression<Func<T, bool>> filter, bool tracking = true)
     {
-        IQueryable<T> query = _entity.Where(filter).AsQueryable();
+        var query = Entity.Where(filter).AsQueryable();
         if (!tracking) query = query.AsNoTracking();
         return query.CountAsync();
     }
     public bool Any(Expression<Func<T, bool>> filter, bool tracking = true)
     {
-        IQueryable<T> query = _entity.Where(filter).AsQueryable();
+        var query = Entity.Where(filter).AsQueryable();
         if (!tracking) query = query.AsNoTracking();
         return query.Any();
     }
 
     public Task<bool> AnyAsync(Expression<Func<T, bool>> filter, bool tracking = true)
     {
-        IQueryable<T> query = _entity.Where(filter).AsQueryable();
+        var query = Entity.Where(filter).AsQueryable();
         if (!tracking) query = query.AsNoTracking();
         return query.AnyAsync();
     }

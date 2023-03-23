@@ -26,7 +26,7 @@ public sealed class ExceptionMiddleware
     {
         context.Response.ContentType = Application.Json;
 
-        var response = ErrorResponseFactory.CreateErrorReponse(exception);
+        var response = ErrorResponseFactory.CreateErrorResponse(exception);
 
         context.Response.StatusCode = response.Status!.Value;
 

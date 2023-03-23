@@ -58,12 +58,12 @@ public class TokenHelper
 
     private RefreshToken GenerateRefreshToken()
     {
-        var currentUTC = DateTime.UtcNow;
+        var currentUtc = DateTime.UtcNow;
         var refreshToken = new RefreshToken
         {
             Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-            TokenCreated = currentUTC,
-            TokenExpiration = currentUTC.AddDays(_tokenOptions.RefreshTokenExpiration)
+            TokenCreated = currentUtc,
+            TokenExpiration = currentUtc.AddDays(_tokenOptions.RefreshTokenExpiration)
         };
 
         return refreshToken;
