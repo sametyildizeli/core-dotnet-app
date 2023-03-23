@@ -6,12 +6,12 @@ using System.Linq.Expressions;
 
 namespace core_dotnet.Repositories.Concrete;
 
-public abstract class EFWriteRepository<T, TId> : IEFWriteRepository<T, TId> where T : BaseEntity<TId>, new()
+public abstract class EfWriteRepository<T, TId> : IEFWriteRepository<T, TId> where T : BaseEntity<TId>, new()
 {
     private readonly DbSet<T> _entity;
     private readonly DbContext _dbContext;
 
-    public EFWriteRepository(DbContext dbContext)
+    public EfWriteRepository(DbContext dbContext)
     {
         _dbContext = dbContext;
         _entity = dbContext.Set<T>();

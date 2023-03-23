@@ -8,7 +8,7 @@ namespace core_dotnet.ExceptionHandler;
 
 public static class ErrorResponseFactory
 {
-    public static ProblemDetails CreateErrorReponse(Exception exception)
+    public static ProblemDetails CreateErrorResponse(Exception exception)
     {
         ProblemDetails response = exception switch
         {
