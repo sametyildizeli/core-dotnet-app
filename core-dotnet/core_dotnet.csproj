@@ -5,8 +5,8 @@
 		<RootNamespace>core_dotnet</RootNamespace>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<PackageId>core.dotnet.Demo.Beta</PackageId>
-		<Authors>Ömer Furkan Doğruyol</Authors>
+		<PackageId>Skyward.core</PackageId>
+		<Authors>Ömer Furkan Doğruyol, Samet Yıldızeli, Merve Kocabay, Aykut Karakuş, Mustafa Şahin</Authors>
 		<Description>
 			This application will be used for base structure purposes. Contains base entities, base repositories, exception handler,
 			validation handler etc.
