@@ -8,9 +8,9 @@ using System.Linq.Expressions;
 
 namespace core_dotnet.Repositories.Concrete;
 
-public abstract class EFReadRepository<T, TId> : IEfReadRepository<T, TId> where T : BaseEntity<TId>, new()
+public abstract class EfReadRepository<T, TId> : IEfReadRepository<T, TId> where T : BaseEntity<TId>, new()
 {
-    public EFReadRepository(DbContext dbContext) { Entity = dbContext.Set<T>(); }
+    protected EfReadRepository(DbContext dbContext) { Entity = dbContext.Set<T>(); }
 
     public DbSet<T> Entity { get; }
 

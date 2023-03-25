@@ -5,7 +5,7 @@ namespace core_dotnet.ExceptionHandler.Validation;
 
 public sealed class ValidationErrorDetails : ProblemDetails
 {
-    public object Errors { get; set; } = default!;
+    private object Errors { get; set; } = default!;
     public ValidationErrorDetails(Exception exception)
     {
         var validationException = exception as ValidationException;
