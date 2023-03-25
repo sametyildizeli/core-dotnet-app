@@ -19,6 +19,10 @@ public abstract class BaseDbContext : DbContext
                   .HaveConversion<DateOnlyConverter>()
                   .HaveColumnType("date");
 
+        configurationBuilder.Properties<TimeOnly>()
+          .HaveConversion<TimeOnlyConverter>()
+          .HaveColumnType("time(0)");
+
         base.ConfigureConventions(configurationBuilder);
     }
 
