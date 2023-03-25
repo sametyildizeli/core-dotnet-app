@@ -30,12 +30,12 @@ public abstract class BaseDbContext : DbContext
 
         foreach (var data in dataList)
         {
-            switch (data.State)
+            switch (data)
             {
-                case EntityState.Added:
+                case { State: EntityState.Added }:
                     data.Entity.CreateDate = currentDate;
                     break;
-                case EntityState.Modified:
+                case { State: EntityState.Modified }:
                     data.Entity.UpdateDate = currentDate;
                     break;
             }

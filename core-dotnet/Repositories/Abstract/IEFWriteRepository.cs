@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace core_dotnet.Repositories.Abstract;
 
-public interface IEFWriteRepository<T, TId> : IEFRepository<T, TId> where T : BaseEntity<TId>, new()
+public interface IEfWriteRepository<T, TId> : IEfRepository<T, TId> where T : BaseEntity<TId>, new()
 {
     DbContext Context { get; }
     void Add(T entity);

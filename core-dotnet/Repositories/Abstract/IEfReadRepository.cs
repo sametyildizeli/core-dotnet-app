@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace core_dotnet.Repositories.Abstract;
 
-public interface IEfReadRepository<T, TId> : IEFRepository<T, TId> where T : BaseEntity<TId>, new()
+public interface IEfReadRepository<T, TId> : IEfRepository<T, TId> where T : BaseEntity<TId>, new()
 {
     IQueryable<T> Get(Expression<Func<T, bool>> filter, bool tracking = true, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
     T? GetById(TId id, bool tracking = true, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
