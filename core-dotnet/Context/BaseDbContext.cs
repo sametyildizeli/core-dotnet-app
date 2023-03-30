@@ -7,6 +7,10 @@ namespace core_dotnet.Context;
 
 public abstract class BaseDbContext : DbContext
 {
+    protected BaseDbContext(DbContextOptions options) : base(options)
+    {
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
