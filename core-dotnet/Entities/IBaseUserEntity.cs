@@ -2,7 +2,7 @@
 
 public interface IBaseUserEntity
 {
-    string UserId { get; set; }
+    string UserId { get; }
     string Name { get; set; }
     string Surname { get; set; }
     string Email { get; set; }
