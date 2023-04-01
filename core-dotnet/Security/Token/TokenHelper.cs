@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 
 namespace core_dotnet.Security.Token;
 
-public class TokenHelper
+public class TokenHelper : ITokenHelper
 {
     private readonly TokenOptions _tokenOptions;
     private DateTime _accessTokenExpiration;
