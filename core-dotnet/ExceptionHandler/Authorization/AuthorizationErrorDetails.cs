@@ -10,9 +10,6 @@ public sealed class AuthorizationErrorDetails : ProblemDetails
         Status = StatusCodes.Status401Unauthorized;
         Type = "Authorization Exception";
         Title = "Authorization Error";
-        Errors = new List<string>
-        {
-            message
-        };
+        Errors = message;
     }
 }
