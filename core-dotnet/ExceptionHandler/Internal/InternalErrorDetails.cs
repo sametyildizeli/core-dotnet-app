@@ -11,9 +11,7 @@ public sealed class InternalErrorDetails : ProblemDetails
         Status = StatusCodes.Status500InternalServerError;
         Type = "Internal Exception";
         Title = "Internal Error";
-        Errors = new List<string>
-        {
-            message
-        };
+        Errors = message;
+
     }
 }

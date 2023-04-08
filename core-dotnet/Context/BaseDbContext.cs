@@ -1,7 +1,6 @@
 ﻿using core_dotnet.Entities;
 using core_dotnet.Utilities;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 namespace core_dotnet.Context;
 
@@ -9,12 +8,6 @@ public abstract class BaseDbContext : DbContext
 {
     protected BaseDbContext(DbContextOptions options) : base(options)
     {
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        base.OnModelCreating(modelBuilder);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
