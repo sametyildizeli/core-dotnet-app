@@ -10,9 +10,6 @@ public sealed class BusinessErrorDetails : ProblemDetails
         Status = StatusCodes.Status400BadRequest;
         Type = "Business Exception";
         Title = "Business Error";
-        Errors = new List<string>
-        {
-            message
-        };
+        Errors = message;
     }
 }
