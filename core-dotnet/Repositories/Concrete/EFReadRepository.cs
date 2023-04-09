@@ -46,7 +46,7 @@ public abstract class EfReadRepository<T, TId> : IEfReadRepository<T, TId> where
 
         return query.FirstOrDefaultAsync(p => Equals(p.Id, id));
     }
-    public PagedResult<TDto> GetPagedResult<TDto>(int pageNumber = 1, int pageSize = 10, ICollection<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    public PagedResult<TDto> GetPagedResult<TDto>(int? pageNumber, int? pageSize, ICollection<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
         var query = Entity.AsQueryable();
 
@@ -54,25 +54,26 @@ public abstract class EfReadRepository<T, TId> : IEfReadRepository<T, TId> where
 
         if (include != null) query = include(query);
 
-        var skip = (pageNumber - 1) * pageSize;
+        var skip = ((pageNumber ?? 1) - 1) * (pageSize ?? 10);
 
-        query = query.Skip(skip).Take(pageSize);
+        query = query.Skip(skip).Take(pageSize ?? 10);
         query = query.AsNoTracking();
+        query = query.AsSplitQuery();
 
         var pagedEntities = query.ProjectToType<TDto>().ToList();
 
         var totalCount = Count(p => p.RecordStatus == Enums.RecordStatus.Active, false);
 
-        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        var totalPages = (int)Math.Ceiling((double)totalCount / (pageSize ?? 10));
 
         return new PagedResult<TDto>
         {
-            CurrentPage = pageNumber,
+            CurrentPage = pageNumber ?? 1,
             TotalPages = totalPages,
             Results = pagedEntities
         };
     }
-    public async Task<PagedResult<TDto>> GetPagedResultAsync<TDto>(int pageNumber = 1, int pageSize = 10, ICollection<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    public async Task<PagedResult<TDto>> GetPagedResultAsync<TDto>(int? pageNumber, int? pageSize, ICollection<Expression<Func<T, bool>>>? filters = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
     {
         var query = Entity.AsQueryable();
 
@@ -80,20 +81,21 @@ public abstract class EfReadRepository<T, TId> : IEfReadRepository<T, TId> where
 
         if (include != null) query = include(query);
 
-        var skip = (pageNumber - 1) * pageSize;
+        var skip = ((pageNumber ?? 1) - 1) * (pageSize ?? 10);
 
-        query = query.Skip(skip).Take(pageSize);
+        query = query.Skip(skip).Take(pageSize ?? 10);
         query = query.AsNoTracking();
+        query = query.AsSplitQuery();
 
         var pagedEntities = await query.ProjectToType<TDto>().ToListAsync();
 
         var totalCount = await CountAsync(p => p.RecordStatus == Enums.RecordStatus.Active, false);
 
-        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        var totalPages = (int)Math.Ceiling((double)totalCount / (pageSize ?? 10));
 
         return new PagedResult<TDto>
         {
-            CurrentPage = pageNumber,
+            CurrentPage = pageNumber ?? 1,
             TotalPages = totalPages,
             Results = pagedEntities
         };
